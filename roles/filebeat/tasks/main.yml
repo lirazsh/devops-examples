@@ -7,6 +7,8 @@
     mode: 0755
     backup: yes
     force: yes
+  notify:
+    - notify: restart filebeat
 
 
 - name: Deploy Filebeat container

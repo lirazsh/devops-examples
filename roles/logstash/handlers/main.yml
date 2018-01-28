@@ -1,0 +1,8 @@
+---
+
+- name: restart logstash
+  docker_container:
+    name: logstash
+    state: started
+    restart: yes
+

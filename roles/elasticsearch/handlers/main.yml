@@ -1,0 +1,7 @@
+---
+
+- name: restart elastic
+  docker_container: 
+    name: elastic
+    state: started
+    restart: yes
