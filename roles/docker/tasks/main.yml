@@ -1,0 +1,21 @@
+- name: import group_vars
+  include_vars:
+    file: /etc/ansible/group_vars/elk_vars.yml
+    name: elk_vars
+
+- name: Add docker repo
+  yum_repository:
+    name: docker-ce
+    description: Docker CE Stable - $basearch
+    baseurl: https://download.docker.com/linux/centos/7/$basearch/stable
+    enabled: yes
+    gpgcheck: yes
+    gpgkey: https://download.docker.com/linux/centos/gpg
+
+- name: Install docker from repo
+  yum:
+    name: "{{ elk_vars['docker']['version'] }}"
+    state: installed
+
+- name: Enable and start docker service
+  systemd: name=docker state=started enabled=yes

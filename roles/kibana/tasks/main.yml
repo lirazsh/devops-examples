@@ -1,0 +1,21 @@
+- name: Copy kibana.yml
+  copy:
+    src: kibana.yml
+    dest: "{{ elk_vars['config_directory'] }}-{{ elk_vars['elk_version'] }}/kibana.yml"
+    owner: root
+    group: root
+    mode: 0755
+    backup: yes
+    force: yes
+
+- name: Deploy Kibana container
+  docker_container:
+    name: kibana
+    image: docker.elastic.co/kibana/kibana:{{ elk_vars['elk_version'] }}
+    state: started
+    networks:
+      - name: "{{ elk_vars['docker']['network'] }}"
+#    ports: ['0.0.0.0:5601:5601']
+    log_driver: json-file
+    volumes:
+    - "{{ elk_vars['config_directory'] }}-{{ elk_vars['elk_version'] }}/kibana.yml:/usr/share/kibana/config/kibana.yml:ro"

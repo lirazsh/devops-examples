@@ -1,0 +1,10 @@
+---
+- hosts: all
+  roles:
+     - docker
+     - docker-elk-prep
+     - elasticsearch
+     - kibana
+     - logstash
+     - nginx
+     - filebeat

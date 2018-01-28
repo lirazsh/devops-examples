@@ -1,0 +1,29 @@
+- name: Copy elasticsearch.yml
+  copy:
+    src: elasticsearch.yml
+    dest: "{{ elk_vars['config_directory'] }}-{{ elk_vars['elk_version'] }}/elasticsearch.yml"
+    owner: root
+    group: root
+    mode: 0755
+    backup: yes
+    force: yes
+#  notify: restart_elastic
+
+- name: Set vm.max_map_count
+  sysctl:
+    name: vm.max_map_count
+    value: 262144
+    state: present
+    sysctl_set: yes
+
+- name: Deploy ElasticSearch container
+  docker_container:
+    name: elastic
+    image: docker.elastic.co/elasticsearch/elasticsearch:{{ elk_vars['elk_version'] }}
+    state: started
+    networks:
+      - name: "{{ elk_vars['docker']['network'] }}"
+    log_driver: json-file
+    volumes:
+      - "{{ elk_vars['config_directory'] }}-{{ elk_vars['elk_version'] }}/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro"
+#      - /usr/lsdata/jvm.options:/etc/elasticsearch/jvm.options:ro
