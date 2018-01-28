@@ -27,4 +27,6 @@
     log_driver: json-file
     volumes:
       - "{{ elk_vars['config_directory'] }}-{{ elk_vars['elk_version'] }}/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro"
+    restart_policy: "{{ elk_vars['docker']['restart_policy'] }}"
+    restart_retries: "{{ elk_vars['docker']['restart_retries'] }}"
 #      - /usr/lsdata/jvm.options:/etc/elasticsearch/jvm.options:ro
