@@ -20,11 +20,8 @@ chmod 755 /etc/ansible/*
 
 ssh-keygen -P "" -f /root/.ssh/id_rsa
 
-mkdir /root/.ssh/authorized_keys
+do yes | ssh-copy-id 127.0.0.1
+#-o StrictHostKeyChecking=false 
 
-cp /root/.ssh/id_rsa.pub /root/.ssh/authorized_keys/localhost.pub
-
-ssh-copy-id localhost
-
-ansible-playbook -e 'host_key_checking=False' /etc/ansible/playbooks/play.yml
-
+ansible-playbook /etc/ansible/playbooks/play.yml
+#-e 'host_key_checking=False'
