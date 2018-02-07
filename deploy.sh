@@ -10,11 +10,7 @@ pip install ansible
 
 yum install git -y
 
-#mkdir /etc/ansible
-
-#git init /etc/ansible
-
-git clone http://github.com/lirazsh/devops-examples/ /etc/ansible
+cp -r ./ansible /etc/ansible
 
 chmod 755 /etc/ansible/*
 
