@@ -19,3 +19,8 @@
 
 - name: Enable and start docker service
   systemd: name=docker state=started enabled=yes
+
+- name: Install docker-py
+  pip:
+     name: docker-py
+     state: present
