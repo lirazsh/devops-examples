@@ -18,10 +18,11 @@ git clone http://github.com/lirazsh/devops-examples/ /etc/ansible
 
 chmod 755 /etc/ansible/*
 
-ssh-keygen -P "" -f /root/.ssh/id_rsa
+ssh-keygen -P "" -f /root/.ssh/id_rsa_ansible
 
-do yes | ssh-copy-id 127.0.0.1
-#-o StrictHostKeyChecking=false 
+ssh-keyscan -t rsa 127.0.0.1 >> /root/.ssh/known_hosts
+
+ssh-copy-id 127.0.0.1
 
 ansible-playbook /etc/ansible/playbooks/play.yml
 #-e 'host_key_checking=False'
