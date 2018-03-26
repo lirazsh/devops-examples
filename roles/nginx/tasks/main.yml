@@ -29,9 +29,12 @@
     state: started
     networks:
       - name: "{{ elk_vars['docker']['network'] }}"
-    ports: ['0.0.0.0:80:80']
+    ports: ['0.0.0.0:80:80','0.0.0.0:443:443']
     volumes:
      - "{{ elk_vars['config_directory'] }}-{{ elk_vars['elk_version'] }}/nginx.conf:/etc/nginx/conf.d/default.conf:ro"
      - "{{ elk_vars['config_directory'] }}-{{ elk_vars['elk_version'] }}/allowed_users:/etc/nginx/allowed_users:ro"
+     - /etc/nginx/ssl.crt/kibana.crt:/etc/nginx/ssl.crt/kibana.crt:ro  ########## NEED TO EDIT
+     - /etc/nginx/ssl.key/kibana.key:/etc/nginx/ssl.key/kibana.key:ro
+     - /etc/nginx/ssl.csr/kibana.csr:/etc/nginx/ssl.csr/kibana.csr:ro
     restart_policy: "{{ elk_vars['docker']['restart_policy'] }}"
     restart_retries: "{{ elk_vars['docker']['restart_retries'] }}"
