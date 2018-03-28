@@ -1,0 +1,8 @@
+---
+
+- name: restart curator
+  docker_container:
+    name: curator
+    state: started
+    restart: yes
+

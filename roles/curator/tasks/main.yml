@@ -1,0 +1,37 @@
+- name: Copy curator.yml
+  copy:
+    src: curator.yml
+    dest: "{{ elk_vars['config_directory'] }}-{{ elk_vars['elk_version'] }}/curator.yml"
+    owner: root
+    group: root
+    mode: 0755
+    backup: yes
+    force: yes
+  notify:
+    - restart curator
+
+- name: Copy actionfile.yml
+  copy:
+    src: actionfile.yml
+    dest: "{{ elk_vars['config_directory'] }}-{{ elk_vars['elk_version'] }}/actionfile.yml"
+    owner: root
+    group: root
+    mode: 0755
+    backup: yes
+    force: yes
+  notify:
+    - restart curator
+
+- name: Create Curator image
+  docker_image:
+    name: curator
+    tag: 5.5.1
+    state: present
+
+- name: Create Curator schedule
+  cron:
+    name: Curator cleanup
+    state: present
+    hour: 0
+    minute: 0
+    job: "docker run -d --rm --name curator --network {{ elk_vars['docker']['network'] }} --entrypoint curator -v {{ elk_vars['config_directory'] }}-{{ elk_vars['elk_version'] }}/curator.yml:/etc/curator/curator.yml:ro -v {{ elk_vars['config_directory'] }}-{{ elk_vars['elk_version'] }}/actionfile.yml:/etc/curator/actionfile.yml:ro curator:5.5.1 --config /etc/curator/curator.yml /etc/curator/actionfile.yml"
