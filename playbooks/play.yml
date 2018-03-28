@@ -8,3 +8,4 @@
      - logstash
      - nginx
      - filebeat
+     - curator

@@ -1,5 +1,6 @@
 {
   elk_version: 6.1.2,
+  curator_version: 4.0.4,
   config_directory: /usr/share/docker-elk,
   nginx_version: latest,
   docker: {
