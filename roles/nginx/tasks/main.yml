@@ -29,7 +29,7 @@
     state: started
     networks:
       - name: "{{ elk_vars['docker']['network'] }}"
-    ports: ['0.0.0.0:80:80','0.0.0.0:443:443']
+    ports: ['0.0.0.0:80:80','0.0.0.0:443:443','0.0.0.0:9000:9000']
     volumes:
      - "{{ elk_vars['config_directory'] }}-{{ elk_vars['elk_version'] }}/nginx.conf:/etc/nginx/conf.d/default.conf:ro"
      - "{{ elk_vars['config_directory'] }}-{{ elk_vars['elk_version'] }}/allowed_users:/etc/nginx/allowed_users:ro"
