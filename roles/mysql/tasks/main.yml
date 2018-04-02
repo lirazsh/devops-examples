@@ -1,3 +1,16 @@
+- name: Create DB data folder
+  file:
+    path: /var/tmp/test_db
+    state: directory
+    mode: 0755
+
+- name: Download example DB
+  git:
+    repo: 'https://github.com/datacharmer/test_db.git'
+    dest: /var/tmp/test_db/
+    clone: yes
+    update: no
+
 - name: Deploy MySQL-master container
   docker_container:
     name: mysql-master
