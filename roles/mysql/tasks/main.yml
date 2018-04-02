@@ -1,0 +1,23 @@
+- name: Deploy MySQL-master container
+  docker_container:
+    name: mysql-master
+    image: mysql/mysql-server:5.7
+    state: started
+    env: 
+      MYSQL_ROOT_PASSWORD=liraz
+      MYSQL_DATABASE=mydb
+    networks:
+      - name: "{{ elk_vars['docker']['network'] }}"
+#    ports: ['0.0.0.0:5601:5601']
+    log_driver: json-file
+    volumes:
+    - /var/tmp/test_db:/var/tmp/test_db:rw
+    restart_policy: "{{ elk_vars['docker']['restart_policy'] }}"
+    restart_retries: "{{ elk_vars['docker']['restart_retries'] }}"
+
+- name: sleep for 40 seconds and continue with play
+  wait_for: timeout=30
+  delegate_to: localhost
+
+- name: Import DB to MySQL
+  shell: "docker exec -i -w /var/tmp/test_db mysql-master mysql -uroot --password=liraz < /var/tmp/test_db/employees.sql"

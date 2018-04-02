@@ -10,3 +10,4 @@
      - filebeat
      - curator
      - cerebro
+     - mysql
