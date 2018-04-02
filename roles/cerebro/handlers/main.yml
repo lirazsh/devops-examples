@@ -1,0 +1,8 @@
+---
+
+- name: restart cerebro
+  docker_container:
+    name: cerebro
+    state: started
+    restart: yes
+

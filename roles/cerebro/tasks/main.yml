@@ -1,0 +1,26 @@
+- name: Copy Cerebro config
+  copy:
+    src: application.conf
+    dest: "{{ elk_vars['config_directory'] }}-{{ elk_vars['elk_version'] }}/application.conf"
+    owner: root
+    group: root
+    mode: 0755
+    backup: yes
+    force: yes
+  notify:
+    - restart cerebro
+
+- name: Deploy Cerebro container
+  docker_container:
+    name: cerebro
+    image: yannart/cerebro
+    state: started
+    networks:
+      - name: "{{ elk_vars['docker']['network'] }}"
+    ports: ['0.0.0.0:9000:9000']
+    log_driver: json-file
+    volumes:
+    - "{{ elk_vars['config_directory'] }}-{{ elk_vars['elk_version'] }}/application.conf:/opt/cerebro/conf/application.conf:ro"
+    restart_policy: "{{ elk_vars['docker']['restart_policy'] }}"
+    restart_retries: "{{ elk_vars['docker']['restart_retries'] }}"
+

@@ -9,3 +9,4 @@
      - nginx
      - filebeat
      - curator
+     - cerebro
