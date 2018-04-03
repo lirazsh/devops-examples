@@ -1,0 +1,14 @@
+---
+
+- name: restart mysql-master
+  docker_container:
+    name: mysql-master
+    state: started
+    restart: yes
+
+- name: restart mysql-slave
+  docker_container:
+    name: mysql-slave
+    state: started
+    restart: yes
+

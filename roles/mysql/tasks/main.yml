@@ -1,3 +1,56 @@
+- name: Create MySQL replication network
+  docker_network:
+    name: "{{ elk_vars['mysql']['network'] }}"
+
+- name: Copy master.cnf
+  copy:
+    src: master.cnf
+    dest: "{{ elk_vars['config_directory'] }}-{{ elk_vars['elk_version'] }}/master.cnf"
+    owner: root
+    group: root
+    mode: 0755
+    backup: yes
+    force: yes
+  notify:
+    - restart mysql-master
+
+- name: Copy slave.cnf
+  copy:
+    src: slave.cnf
+    dest: "{{ elk_vars['config_directory'] }}-{{ elk_vars['elk_version'] }}/slave.cnf"
+    owner: root
+    group: root
+    mode: 0755
+    backup: yes
+    force: yes
+  notify:
+    - restart mysql-slave
+
+- name: Copy master_repl.sql
+  copy:
+    src: master_repl.sql
+    dest: /var/tmp/master_repl.sql
+    owner: root
+    group: root
+    mode: 0755
+    backup: yes
+    force: yes
+  notify:
+    - restart mysql-master
+
+- name: Copy slave_repl.sql
+  copy:
+    src: slave_repl.sql
+    dest: /var/tmp/slave_repl.sql
+    owner: root
+    group: root
+    mode: 0755
+    backup: yes
+    force: yes
+  notify:
+    - restart mysql-slave
+
+
 - name: Create DB data folder
   file:
     path: /var/tmp/test_db
@@ -11,7 +64,7 @@
     clone: yes
     update: no
 
-- name: Deploy MySQL-master container
+- name: Deploy MySQL-master
   docker_container:
     name: mysql-master
     image: mysql/mysql-server:5.7
@@ -21,10 +74,33 @@
       MYSQL_DATABASE=mydb
     networks:
       - name: "{{ elk_vars['docker']['network'] }}"
+      - name: "{{ elk_vars['mysql']['network'] }}"
 #    ports: ['0.0.0.0:5601:5601']
     log_driver: json-file
     volumes:
-    - /var/tmp/test_db:/var/tmp/test_db:rw
+    - "{{ elk_vars['config_directory'] }}-{{ elk_vars['elk_version'] }}/master_repl.sql:/var/tmp/master_repl.sql:ro"
+    - /var/tmp/test_db:/var/tmp/test_db:ro
+    - "{{ elk_vars['config_directory'] }}-{{ elk_vars['elk_version'] }}/master.cnf:/etc/my.cnf:ro"
+    restart_policy: "{{ elk_vars['docker']['restart_policy'] }}"
+    restart_retries: "{{ elk_vars['docker']['restart_retries'] }}"
+
+- name: Deploy MySQL-slave
+  docker_container:
+    name: mysql-slave
+    image: mysql/mysql-server:5.7
+    state: started
+    env:
+      MYSQL_ROOT_PASSWORD=liraz
+      MYSQL_DATABASE=mydb
+    networks:
+      - name: "{{ elk_vars['docker']['network'] }}"
+      - name: "{{ elk_vars['mysql']['network'] }}"
+#    ports: ['0.0.0.0:5601:5601']
+    log_driver: json-file
+    volumes:
+    - "{{ elk_vars['config_directory'] }}-{{ elk_vars['elk_version'] }}/slave_repl.sql:/var/tmp/slave_repl.sql:ro"
+    - /var/tmp/test_db:/var/tmp/test_db:ro
+    - "{{ elk_vars['config_directory'] }}-{{ elk_vars['elk_version'] }}/slave.cnf:/etc/my.cnf:ro"
     restart_policy: "{{ elk_vars['docker']['restart_policy'] }}"
     restart_retries: "{{ elk_vars['docker']['restart_retries'] }}"
 
@@ -32,5 +108,15 @@
   wait_for: timeout=30
   delegate_to: localhost
 
-- name: Import DB to MySQL
+- name: sql-master - setup master-slave replication
+  shell: 'docker exec -i -w /var/tmp/ mysql-master mysql -uroot --password=liraz < /var/tmp/master_repl.sql'
+
+- name: sql-slave - setup master-slave replication
+  shell: "docker exec -i -w /var/tmp/ mysql-slave mysql -uroot --password=liraz < /var/tmp/slave_repl.sql"
+
+- name: Import DB to MySQL-master
   shell: "docker exec -i -w /var/tmp/test_db mysql-master mysql -uroot --password=liraz < /var/tmp/test_db/employees.sql"
+
+#- name: Import DB to MySQL-slave
+#  shell: "docker exec -i -w /var/tmp/test_db mysql-slave mysql -uroot --password=liraz < /var/tmp/test_db/employees.sql"
+

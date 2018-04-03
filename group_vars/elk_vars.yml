@@ -9,5 +9,8 @@
     restart_policy: on-failure,
     restart_retries: 3,
     containers_dir: /var/lib/docker/containers/
+  },
+  mysql: {
+    network: sql_network
   }
 }
