@@ -9,6 +9,5 @@ output {
     hosts => "elastic:9200"
     manage_template => false
     index => "%{[@metadata][beat]}-%{+YYYY.MM.dd}"
-    document_type => "%{[@metadata][type]}"
   }
 }

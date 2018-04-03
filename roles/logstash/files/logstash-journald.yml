@@ -1,0 +1,28 @@
+input {
+     journald {
+       lowercase => true
+       path => "/run/log/journal"
+       seekto => "head"
+       thisboot => true
+       type => "systemd"
+       tags => [ "coreos" ]
+     }
+}
+
+filter {
+   mutate {
+     rename => { "_uid" => "myuid" }
+   }
+}
+
+output {
+  elasticsearch {
+    hosts => "elastic:9200"
+    manage_template => false
+    index => "journald-%{+YYYY.MM.dd}"
+  }
+}
+
+#output {
+#  stdout { codec => rubydebug }
+#}

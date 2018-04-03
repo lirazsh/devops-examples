@@ -10,7 +10,7 @@
   notify:
     - restart logstash
 
-- name: Copy logstash.conf
+- name: Copy logstash-beats.conf
   copy:
     src: logstash-beats.yml
     dest: "{{ elk_vars['config_directory'] }}-{{ elk_vars['elk_version'] }}/logstash-beats.yml"
@@ -22,16 +22,45 @@
   notify:
     - restart logstash
 
+- name: Copy logstash-journald.conf
+  copy:
+    src: logstash-journald.yml
+    dest: "{{ elk_vars['config_directory'] }}-{{ elk_vars['elk_version'] }}/logstash-journald.yml"
+    owner: root
+    group: root
+    mode: 0755
+    backup: yes
+    force: yes
+  notify:
+    - restart logstash
+
+
+- name: Create a Dockerfile for logstash-Journald
+  template:
+    src: Dockerfile
+    dest: "{{ elk_vars['config_directory'] }}-{{ elk_vars['elk_version'] }}/Dockerfile"
+
+- name: Create new logstash image with Journald input
+  docker_image:
+    name: logstash-journald
+    path: "{{ elk_vars['config_directory'] }}-{{ elk_vars['elk_version'] }}"
+    state: present
+    tag: "{{ elk_vars['elk_version'] }}"
+
 - name: Deploy Logstash container
   docker_container:
     name: logstash
-    image: docker.elastic.co/logstash/logstash:{{ elk_vars['elk_version'] }}
+    #image: docker.elastic.co/logstash/logstash:{{ elk_vars['elk_version'] }}
+    image: logstash-journald:{{ elk_vars['elk_version'] }}
     state: started
+    user: root
     networks:
       - name: "{{ elk_vars['docker']['network'] }}"
     log_driver: json-file
     volumes:
-     - "{{ elk_vars['config_directory'] }}-{{ elk_vars['elk_version'] }}/logstash.yml:/usr/share/logstash/config/logstash.yml:ro"
-     - "{{ elk_vars['config_directory'] }}-{{ elk_vars['elk_version'] }}/logstash-beats.yml:/usr/share/logstash/pipeline/logstash.conf:ro"
+     - /run/log/journal:/run/log/journal:ro
+     - "{{ elk_vars['config_directory'] }}-{{ elk_vars['elk_version'] }}/logstash.yml:/usr/share/logstash/config/logstash.yml:rw"
+     - "{{ elk_vars['config_directory'] }}-{{ elk_vars['elk_version'] }}/logstash-beats.yml:/usr/share/logstash/pipeline/logstash.conf:rw"
+     - "{{ elk_vars['config_directory'] }}-{{ elk_vars['elk_version'] }}/logstash-journald.yml:/usr/share/logstash/pipeline/logstash-journald.conf:rw"
     restart_policy: "{{ elk_vars['docker']['restart_policy'] }}"
     restart_retries: "{{ elk_vars['docker']['restart_retries'] }}"
