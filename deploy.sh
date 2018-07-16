@@ -12,6 +12,9 @@ pip install ansible || ( echo -e "failed to install ansible" && exit 1 )
 # Install git using python-pip
 yum install git -y || ( echo -e "failed to install git" && exit 1 )
 
+# Create config dir for Ansible
+mkdir /etc/ansible || ( echo -e "Unable to create /etc/ansible" && exit 1 )
+
 # Align permissions for /etc/ansible
 chmod 755 /etc/ansible/* || ( echo "failed to correct permissions in /etc/ansible/" && exit 1 )
 
