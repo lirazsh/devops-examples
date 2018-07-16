@@ -13,7 +13,7 @@ pip install ansible || ( echo -e "failed to install ansible" && exit 1 )
 yum install git -y || ( echo -e "failed to install git" && exit 1 )
 
 # Align permissions for /etc/ansible
-chmod 755 /etc/ansible/* || ( "failed to correct permissions in /etc/ansible/" && exit 1 )
+chmod 755 /etc/ansible/* || ( echo "failed to correct permissions in /etc/ansible/" && exit 1 )
 
 # Generate SSH key
 ssh-keygen -P "" -f /root/.ssh/id_rsa || ( echo "failed to generate SSH key" && exit 1 )
